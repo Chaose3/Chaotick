@@ -42,11 +42,29 @@ def get_macd_signal(ticker):
         return None, None
 
 
+def get_rsi_signal(ticker):
+    data = yf.download(ticker, period="1mo", interval="1h")
+    if data.empty or len(data) < 14:   # This is the duration of the RSI calculation
+        return None
+    delta = data['Close'].diff()
+    gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
+    loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
+    rs = gain / loss
+    rsi = 100 - (100 / (1+rs))
+    if not rsi.empty:
+        return rsi.iloc[-1].item()
+    else:
+        return None
+
+
 # Command for stock analysis
-@tree.command(name="stock", description="Get stock MACD signals for a ticker")
+@tree.command(name="stock", description="Calculate long and short signals based on technical indicators")
 async def stock_command(interaction: discord.Interaction, ticker: str):
     # Get MACD values
     macd, signal = get_macd_signal(ticker)
+
+    # Get RSI values
+    rsi = get_rsi_signal(ticker)
 
     # Check if data is available
     if macd is None or signal is None:
@@ -65,10 +83,18 @@ async def stock_command(interaction: discord.Interaction, ticker: str):
         await interaction.response.send_message(f"Error comparing MACD and Signal values: {e}")
         return
 
+    if rsi > 70:
+        rsi_signal = "Overbought (Consider selling)"
+    elif rsi < 30:
+        rsi_signal = "Oversold (Consider buying"
+    else:
+        rsi_signal = "Neutral"
+
     # Response message with analysis
     response_message = (
         f"**Stock: {ticker}**\n"
-        f"MACD: {macd:.2f} - Signal Line: {signal:.2f} - Signal: {macd_signal}"
+        f"MACD: {macd:.2f} - Signal Line: {signal:.2f} - Signal: {macd_signal}\n"
+        f"RSI: {rsi:.2f} - Signal: {rsi_signal}\n"
     )
 
     # Send response to Discord
