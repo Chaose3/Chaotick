@@ -14,10 +14,10 @@ This bot sends daily stock signals and alerts based on technical indicators (RSI
 
 
 - Daily stock signals posted automatically to a Discord channel.
-- Supports basic technical analysis indicators:
-- **Simple Moving Average (SMA)** crossover signals.
-- **Relative Strength Index (RSI)** overbought/oversold signals.
+- Supports basic technical analysis indicators (All are using the one-hour timeframe):
 - **Moving Average Convergence Divergence (MACD)** crossover signals.
+- **Relative Strength Index (RSI)** overbought/oversold signals.
+- **Simple Moving Average (SMA)** crossover signals.
 - Slash commands to check stock signals for specific tickers and to clear messages.
 
 
@@ -82,7 +82,6 @@ python3 app.py
 
 
 - **`/stock <ticker>`**: Get real-time signals for a specified stock ticker (e.g., `/stock AAPL`).
-- **`/company <company_name>`**: Get the stock ticker for a specified company.
 - **`/clear <amount>`**: Clear the specified number of messages from the chat.
 
 
