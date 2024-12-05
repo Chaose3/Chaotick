@@ -75,6 +75,26 @@ async def stock_command(interaction: discord.Interaction, ticker: str):
     await interaction.response.send_message(response_message)
 
 
+@tree.command(name="clear", description="Clear messages from the chat")
+async def clear(ctx, amount: int):
+    """Clears a specified number of messages."""
+    if amount <= 0:
+        await ctx.respond("Please specify a number greater than 0.", ephemeral=True)
+        return
+
+    try:
+        # Bulk delete messages
+        deleted = await ctx.channel.purge(limit=amount + 1)  # +1 includes the command message
+        await ctx.respond(f"Cleared {len(deleted) - 1} messages!", ephemeral=True)  # Exclude the command message itself
+    except discord.HTTPException as e:
+        if "rate limited" in str(e).lower():
+            await ctx.respond("The bot is being rate-limited. Please wait and try again later.", ephemeral=True)
+        else:
+            await ctx.respond(f"An error occurred: {e}", ephemeral=True)
+    except Exception as e:
+        await ctx.respond(f"An unexpected error occurred: {e}", ephemeral=True)
+
+
 # Event to sync commands when bot is ready
 @bot.event
 async def on_ready():
