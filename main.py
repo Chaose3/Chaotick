@@ -57,6 +57,39 @@ def get_rsi_signal(ticker):
         return None
 
 
+def get_ma_crossover_signal(ticker):
+    # Fetch the stock data (1 month, 1 hour interval)
+    data = yf.download(ticker, period="1mo", interval="1h")
+
+    if data.empty:
+        return None
+
+    # Calculate the long-term and short-term moving averages, you can change the window variables as desired
+    data['Short_MA'] = data['Close'].rolling(window=9).mean()  # 9-Period MA
+    data['Long_MA'] = data['Close'].rolling(window=21).mean()  # 21-Period MA
+
+    # Drop rows with NaN values
+    data = data.dropna()
+
+    # Ensure there is enough data for MAs
+    if len(data.dropna()) < 2:
+        return None
+
+    # Get 2 variables for comparison
+    short_ma_current = data['Short_MA'].iloc[-1]
+    short_ma_previous = data['Short_MA'].iloc[-2]
+    long_ma_current = data['Long_MA'].iloc[-1]
+    long_ma_previous = data['Long_MA'].iloc[-2]
+
+    # Check for a crossover
+    if short_ma_previous <= long_ma_previous and short_ma_current > long_ma_current:
+        return "Buy (Bullish crossover"
+    elif short_ma_previous >= long_ma_previous and short_ma_current < long_ma_current:
+        return "Sell (Bearish crossover"
+    else:
+        return "No crossover"
+
+
 # Command for stock analysis
 @tree.command(name="stock", description="Calculate long and short signals based on technical indicators")
 async def stock_command(interaction: discord.Interaction, ticker: str):
@@ -65,6 +98,9 @@ async def stock_command(interaction: discord.Interaction, ticker: str):
 
     # Get RSI values
     rsi = get_rsi_signal(ticker)
+
+    # Get MA values
+    ma_signal = get_ma_crossover_signal(ticker)
 
     # Check if data is available
     if macd is None or signal is None:
@@ -90,11 +126,16 @@ async def stock_command(interaction: discord.Interaction, ticker: str):
     else:
         rsi_signal = "Neutral"
 
+
+    # Check if MA Crossover Data is availible
+    if ma_signal is None:
+        await interaction.response.send_message(f"Could not fetch enough data for {ticker} (MA Crossover).", ephemeral=True)
     # Response message with analysis
     response_message = (
         f"**Stock: {ticker}**\n"
         f"MACD: {macd:.2f} - Signal Line: {signal:.2f} - Signal: {macd_signal}\n"
         f"RSI: {rsi:.2f} - Signal: {rsi_signal}\n"
+        f"Ma Crossover: {ma_signal}"
     )
 
     # Send response to Discord
