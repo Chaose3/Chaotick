@@ -38,7 +38,7 @@ Clone the project
 
 
 ```bash
-git clone https://github.com/Chaose3/StockAlert.git
+git clone https://github.com/Chaose3/Chaotick.git
 ```
 
 
