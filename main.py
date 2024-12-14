@@ -127,7 +127,7 @@ async def stock_command(interaction: discord.Interaction, ticker: str):
         rsi_signal = "Neutral"
 
 
-    # Check if MA Crossover Data is availible
+    # Check if MA Crossover Data is available
     if ma_signal is None:
         await interaction.response.send_message(f"Could not fetch enough data for {ticker} (MA Crossover).", ephemeral=True)
     # Response message with analysis

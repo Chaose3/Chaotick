@@ -3,7 +3,7 @@
 
 
 
-This bot sends daily stock signals and alerts based on technical indicators (RSI, SMA, and MACD) to a Discord channel. Built with `discord.py`, `yfinance`, and `APScheduler`.
+This bot sends daily stock signals and alerts based on technical indicators (RSI, SMA, and MACD) to a Discord channel. Built with `discord`, `yfinance`, and `APScheduler`.
 
 
 
